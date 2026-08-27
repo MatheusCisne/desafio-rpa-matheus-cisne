@@ -15,5 +15,9 @@ uipath/.settings/
 uipath/project.local.json
 *.user
 
+# Editores/IDEs
+.idea/
+.vscode/
+
 # Diversos
 .DS_Store
