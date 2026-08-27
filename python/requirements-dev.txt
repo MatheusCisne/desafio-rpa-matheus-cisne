@@ -1,0 +1,6 @@
+# Dependências apenas para desenvolvimento/testes (não necessárias para rodar
+# main.py). Separado de requirements.txt, que é a lista exata (via pip freeze)
+# das dependências de runtime do RPA, para não misturar ferramentas de teste
+# com o que a automação realmente precisa em produção.
+-r requirements.txt
+pytest==9.1.1
