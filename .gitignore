@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Dados baixados e artefatos de execução
+python/data/
+python/logs/
+
+# UiPath
+uipath/.local/
+uipath/.settings/
+uipath/project.local.json
+*.user
+
+# Diversos
+.DS_Store
