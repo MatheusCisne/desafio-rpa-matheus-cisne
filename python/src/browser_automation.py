@@ -1,9 +1,7 @@
 """Interações com o navegador (Playwright) para o RPA Challenge.
 
-Estratégia de localização de campos: cada input é encontrado pelo atributo
-`ng-reflect-name`, exposto pelo Angular (modo desenvolvimento) e que não
-muda entre rodadas, mesmo com os campos trocando de posição na tela.
-Nenhuma coordenada fixa é usada.
+Campos localizados pelo atributo ng-reflect-name (estavel entre rodadas,
+mesmo com o layout mudando) — nenhuma coordenada fixa e usada.
 """
 
 import logging
@@ -48,18 +46,9 @@ def click_start(page: Page) -> None:
 
 
 def fill_field(page: Page, ng_reflect_name: str, value: object) -> None:
-    """Preenche um único campo, localizado pelo atributo ng-reflect-name.
-
-    Função pequena e isolada de propósito: é o ponto natural para uma
-    alteração pontual (ex.: trocar a estratégia de seletor) sem tocar no
-    resto do fluxo.
-
-    Células vazias em colunas obrigatórias chegam do pandas como `None` ou
-    `NaN` (quando a linha tem outros campos preenchidos, `dropna(how="all")`
-    não remove essa célula individual). Sem tratamento, `str(value)` gera
-    literalmente "None"/"nan" digitado no formulário — por isso ambos os
-    casos são normalizados para string vazia antes do fill.
-    """
+    """Preenche um único campo, localizado pelo atributo ng-reflect-name."""
+    # Celula vazia chega do pandas como None/NaN; sem isso viraria o texto
+    # literal "None"/"nan" digitado no formulario.
     if value is None or (isinstance(value, float) and math.isnan(value)):
         text = ""
     else:
@@ -70,12 +59,7 @@ def fill_field(page: Page, ng_reflect_name: str, value: object) -> None:
 
 
 def fill_round(page: Page, row: dict[str, object], field_map: dict[str, str]) -> None:
-    """Preenche todos os campos de uma rodada a partir de uma linha do Excel.
-
-    Cada campo é preenchido dentro de seu próprio try/except só para registrar,
-    com precisão, qual coluna/atributo falhou antes de propagar o erro (a
-    execução continua fail-fast: nenhum retry é feito aqui).
-    """
+    """Preenche todos os campos de uma rodada a partir de uma linha do Excel."""
     for column, ng_reflect_name in field_map.items():
         try:
             fill_field(page, ng_reflect_name, row.get(column, ""))

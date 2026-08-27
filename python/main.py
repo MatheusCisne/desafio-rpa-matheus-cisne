@@ -30,21 +30,13 @@ EXCEL_PATH = PYTHON_DIR / "data" / "challenge.xlsx"
 LOG_PATH = PYTHON_DIR / "logs" / "execucao.log"
 EVIDENCE_PATH = PROJECT_ROOT / "evidencias" / "resultado-python.png"
 
-# Por padrão o navegador roda "headed" (visível), que é o comportamento correto
-# para uso normal. Definir a variável de ambiente RPA_HEADLESS=1 (ou true/yes)
-# força modo headless — útil apenas para testar em máquinas/sandboxes sem
-# display. Sem a variável definida, nada muda.
+# RPA_HEADLESS=1 forca modo headless (util para CI/sandboxes sem display).
+# Padrao: headed (visivel).
 HEADLESS = os.environ.get("RPA_HEADLESS", "").strip().lower() in {"1", "true", "yes"}
 
-# Por padrão usa o Chromium que o próprio Playwright baixa (`playwright install
-# chromium`) — é o comportamento mais portátil, sem depender de nenhum navegador
-# já instalado na máquina. Em alguns ambientes Windows esse Chromium isolado não
-# consegue iniciar em modo visível por um problema de ativação de assembly do
-# próprio sistema operacional (não é um bug do projeto — confirmado via log de
-# eventos do Windows; o mesmo Chromium roda normalmente em modo headless). Se
-# isso acontecer, defina RPA_BROWSER_CHANNEL=msedge para usar o Microsoft Edge
-# já instalado no Windows como alternativa (também suportado nativamente pelo
-# Playwright). Sem a variável definida, nada muda.
+# RPA_BROWSER_CHANNEL=msedge usa o Edge do sistema em vez do Chromium do
+# Playwright (ver README: workaround para uma falha de ativacao do Chromium
+# em algumas instalacoes do Windows). Padrao: Chromium do Playwright.
 BROWSER_CHANNEL = os.environ.get("RPA_BROWSER_CHANNEL", "").strip() or None
 
 

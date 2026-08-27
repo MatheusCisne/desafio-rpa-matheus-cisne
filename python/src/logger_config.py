@@ -12,10 +12,8 @@ def configure_logging(log_file: str | Path) -> logging.Logger:
     logger = logging.getLogger("rpa_challenge")
     logger.setLevel(logging.INFO)
 
-    # Fecha explicitamente os handlers de uma configuração anterior antes de
-    # descartá-los: `.clear()` sozinho apenas remove as referências da lista,
-    # sem liberar o descritor de arquivo do FileHandler antigo (vazamento de
-    # recurso caso configure_logging seja chamado mais de uma vez).
+    # .clear() sozinho nao fecha o FileHandler anterior (vazaria o descritor
+    # de arquivo se configure_logging for chamado mais de uma vez).
     for handler in logger.handlers:
         handler.close()
     logger.handlers.clear()
