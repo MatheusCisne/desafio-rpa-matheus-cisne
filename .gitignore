@@ -12,7 +12,15 @@ python/logs/
 # UiPath
 uipath/.local/
 uipath/.settings/
+uipath/.entities/
+uipath/.objects/
+uipath/.project/
+uipath/.templates/
+uipath/.tmh/
 uipath/project.local.json
+uipath/.output/
+uipath/data/
+uipath/logs/
 *.user
 
 # Editores/IDEs

@@ -21,11 +21,14 @@ desafio-rpa-matheus-cisne/
   técnicas (por que pandas em vez de openpyxl, por que Playwright), como instalar e executar,
   como os campos dinâmicos foram identificados, tratamento de erros/logs, dificuldades e
   limitações.
-- **Solução UiPath**: [uipath/README.md](uipath/README.md) *(em andamento)*.
+- **Solução UiPath**: [uipath/README.md](uipath/README.md) — problema resolvido, decisões
+  técnicas (por que um único card de navegador, por que WebClient para o download), como
+  instalar e executar, dificuldades e limitações.
 - **Evidências**:
   - [evidencias/resultado-python.png](evidencias/resultado-python.png) — resultado final da
     execução em Python (100%, 70/70 campos).
-  - `evidencias/resultado-uipath.png` — resultado final da execução em UiPath *(pendente)*.
+  - [evidencias/resultado-uipath.png](evidencias/resultado-uipath.png) — resultado final da
+    execução em UiPath (100%, 70/70 campos).
   - `evidencias/link-do-video.txt` — link do vídeo curto mostrando as duas soluções rodando
     *(pendente)*.
 - **Uso de IA**: [USO_DE_IA.md](USO_DE_IA.md).
