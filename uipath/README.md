@@ -69,6 +69,17 @@ empacotamento (não era — ver "Dificuldades"), mas mantive a correção por se
 correta: o projeto de teste vazio criado durante a depuração usava `UiPath.System.Activities`
 (sem `.Runtime`), então padronizei por aqui.
 
+### Revisão de qualidade (Workflow Analyzer)
+
+Rodei o Workflow Analyzer nativo do UiPath (`UiPath.Studio.CommandLine.exe analyze`) sobre o
+projeto inteiro, igual foi feito com um linter (`ruff`) na solução Python. Um achado real foi
+corrigido: a espera de 3 segundos fixos (`Delay`) logo após abrir o site foi trocada por um
+`Check App State` esperando o botão "Start" realmente existir (regra `ST-PRR-004` — evitar
+delays fixos em favor de esperas por estado). Um aviso foi avaliado e descartado conscientemente:
+o analisador aponta a variável `ChallengeExcelUrl` como não utilizada, mas ela é usada dentro de
+`InvokeMethod.Parameters` — o analisador não enxerga esse padrão de uso, é um falso positivo
+confirmado lendo o código.
+
 ## Como os campos dinâmicos foram identificados
 
 Igual à solução Python: o site roda Angular em modo desenvolvimento, o que expõe o atributo

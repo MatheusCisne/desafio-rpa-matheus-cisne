@@ -93,6 +93,7 @@ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Sequence DisplayName="Abrir navegador, clicar Start e executar as 10 rodadas">
         <Sequence.Variables>
             <Variable x:TypeArguments="x:Int32" Name="RoundNumber" />
+            <Variable x:TypeArguments="x:Boolean" Name="PageLoaded" />
             <Variable x:TypeArguments="x:Boolean" Name="CongratsFound" />
             <Variable x:TypeArguments="x:Object" Name="Discard" />
         </Sequence.Variables>
@@ -108,7 +109,26 @@ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
                 </ActivityAction.Argument>
                 <Sequence DisplayName="Fluxo completo dentro do mesmo card (sem reabrir entre rodadas)">
 
-                    <Delay DisplayName="Aguardar carregamento inicial da pagina" Duration="00:00:03" />
+                    <!--
+                    Espera o botao Start existir em vez de um Delay fixo — mais
+                    rapido numa conexao boa, mais seguro numa conexao lenta
+                    (recomendacao do Workflow Analyzer, regra ST-PRR-004).
+                    -->
+                    <uix:NCheckState DisplayName="Aguardar pagina carregar (botao Start existir)" Mode="WaitAppear" Timeout="30" Exists="[PageLoaded]">
+                        <uix:NCheckState.Target>
+                            <uix:TargetAnchorable Version="V6" SearchSteps="Selector" FullSelectorArgument="&lt;html title='*RPA Challenge*' /&gt;&lt;webctrl tag='BUTTON' aaname='Start' /&gt;" />
+                        </uix:NCheckState.Target>
+                    </uix:NCheckState>
+
+                    <If Condition="[Not PageLoaded]" DisplayName="Pagina carregou a tempo?">
+                        <If.Then>
+                            <Throw DisplayName="Erro: pagina nao carregou">
+                                <Throw.Exception>
+                                    <InArgument x:TypeArguments="s:Exception">[New TimeoutException("O botao Start nao apareceu a tempo apos abrir o site.")]</InArgument>
+                                </Throw.Exception>
+                            </Throw>
+                        </If.Then>
+                    </If>
 
                     <uix:NClick DisplayName="Click 'Start'">
                         <uix:NClick.Target>
