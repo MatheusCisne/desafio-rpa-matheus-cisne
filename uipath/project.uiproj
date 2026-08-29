@@ -1,0 +1,6 @@
+{
+  "Name": "RPAChallengeUiPath",
+  "ProjectType": "Process",
+  "Description": "Solucao 100% UiPath do RPA Challenge (rpachallenge.com): le o Excel baixado pelo proprio robo e preenche as 10 rodadas do formulario, localizando cada campo pelo atributo ng-reflect-name (nunca por coordenadas fixas).",
+  "MainFile": "Main.xaml"
+}

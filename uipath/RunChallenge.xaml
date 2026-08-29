@@ -1,0 +1,290 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="RunChallenge" mva:VisualBasic.Settings="{x:Null}"
+xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common"
+xmlns:ui="http://schemas.uipath.com/workflow/activities"
+xmlns:uix="http://schemas.uipath.com/workflow/activities/uix"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+    Abre o navegador, clica Start e executa as 10 rodadas inteiras dentro de um
+    UNICO NApplicationCard continuo (nunca fechado/reaberto entre rodadas).
+
+    Por que isso importa (dificuldade real encontrada): a versao anterior desse
+    projeto invocava um arquivo .xaml separado por rodada (FillRound.xaml), cada
+    um abrindo seu proprio card "Use Application/Browser". Mesmo reaproveitando
+    visualmente a mesma janela (sem navegar, sem popup de traducao, mesmo titulo),
+    o STATE INTERNO do app Angular da SPA era perdido a cada reabertura de card —
+    confirmado ao ver que o botao "Start" nunca mudava para "Round N" depois do
+    clique inicial (ficava preso em "START"), ou seja, as "10 rodadas" estavam
+    sendo enviadas no modo de teste livre pre-Start (que o site permite sem
+    penalidade), nunca no desafio cronometrado de verdade — por isso
+    ".congratulations" nunca aparecia. A correcao foi consolidar TODO o fluxo
+    (Start + as 10 rodadas + validacao final) num unico card, sem nenhuma
+    invocacao de arquivo separado no meio. Ver README, secao "Dificuldades".
+    -->
+    <x:Members>
+        <x:Property Name="in_dtChallengeData" Type="InArgument(sd:DataTable)" />
+        <x:Property Name="in_FieldMap" Type="InArgument(scg:Dictionary(x:String, x:String))" />
+        <x:Property Name="in_EvidencePath" Type="InArgument(x:String)" />
+    </x:Members>
+    <TextExpression.NamespacesForImplementation>
+        <sco:Collection x:TypeArguments="x:String">
+            <x:String>System.Activities</x:String>
+            <x:String>System.Activities.Statements</x:String>
+            <x:String>System.Activities.Expressions</x:String>
+            <x:String>System.Activities.Validation</x:String>
+            <x:String>System.Activities.XamlIntegration</x:String>
+            <x:String>Microsoft.VisualBasic</x:String>
+            <x:String>Microsoft.VisualBasic.Activities</x:String>
+            <x:String>System</x:String>
+            <x:String>System.Collections</x:String>
+            <x:String>System.Collections.Generic</x:String>
+            <x:String>System.Collections.ObjectModel</x:String>
+            <x:String>System.Data</x:String>
+            <x:String>System.Diagnostics</x:String>
+            <x:String>System.Drawing</x:String>
+            <x:String>System.IO</x:String>
+            <x:String>System.Linq</x:String>
+            <x:String>System.Net.Mail</x:String>
+            <x:String>System.Xml</x:String>
+            <x:String>System.Xml.Linq</x:String>
+            <x:String>UiPath.Core</x:String>
+            <x:String>UiPath.Core.Activities</x:String>
+            <x:String>UiPath.UIAutomationNext.Enums</x:String>
+            <x:String>UiPath.UIAutomationNext.Activities</x:String>
+            <x:String>UiPath.UIAutomationNext</x:String>
+            <x:String>System.Windows.Markup</x:String>
+        </sco:Collection>
+    </TextExpression.NamespacesForImplementation>
+    <TextExpression.ReferencesForImplementation>
+        <sco:Collection x:TypeArguments="AssemblyReference">
+            <AssemblyReference>System.Activities</AssemblyReference>
+            <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+            <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+            <AssemblyReference>mscorlib</AssemblyReference>
+            <AssemblyReference>System.Data</AssemblyReference>
+            <AssemblyReference>System</AssemblyReference>
+            <AssemblyReference>System.Linq</AssemblyReference>
+            <AssemblyReference>System.Data.Common</AssemblyReference>
+            <AssemblyReference>System.Drawing</AssemblyReference>
+            <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+            <AssemblyReference>System.Drawing.Common</AssemblyReference>
+            <AssemblyReference>System.Core</AssemblyReference>
+            <AssemblyReference>System.Xml</AssemblyReference>
+            <AssemblyReference>System.Xml.Linq</AssemblyReference>
+            <AssemblyReference>PresentationFramework</AssemblyReference>
+            <AssemblyReference>WindowsBase</AssemblyReference>
+            <AssemblyReference>PresentationCore</AssemblyReference>
+            <AssemblyReference>System.Xaml</AssemblyReference>
+            <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+            <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+            <AssemblyReference>UiPath.UIAutomationNext.Activities</AssemblyReference>
+            <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+            <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+            <AssemblyReference>System.Net.Mail</AssemblyReference>
+        </sco:Collection>
+    </TextExpression.ReferencesForImplementation>
+    <Sequence DisplayName="Abrir navegador, clicar Start e executar as 10 rodadas">
+        <Sequence.Variables>
+            <Variable x:TypeArguments="x:Int32" Name="RoundNumber" />
+            <Variable x:TypeArguments="x:Boolean" Name="CongratsFound" />
+            <Variable x:TypeArguments="x:Object" Name="Discard" />
+        </Sequence.Variables>
+
+        <uix:NApplicationCard DisplayName="Use Application/Browser (RPA Challenge)" OpenMode="[NAppOpenMode.IfNotOpen]" CloseMode="[NAppCloseMode.Never]" WebDriverMode="[NWebDriverMode.DevTools]" Version="V2">
+            <uix:NApplicationCard.TargetApp>
+                <uix:TargetApp Version="V3" Selector="&lt;html app='msedge.exe' title='*RPA Challenge*' /&gt;" Url="https://rpachallenge.com/" />
+            </uix:NApplicationCard.TargetApp>
+            <uix:NApplicationCard.Body>
+                <ActivityAction x:TypeArguments="x:Object">
+                <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="x:Object" Name="ContextTarget" />
+                </ActivityAction.Argument>
+                <Sequence DisplayName="Fluxo completo dentro do mesmo card (sem reabrir entre rodadas)">
+
+                    <Delay DisplayName="Aguardar carregamento inicial da pagina" Duration="00:00:03" />
+
+                    <uix:NClick DisplayName="Click 'Start'">
+                        <uix:NClick.Target>
+                            <uix:TargetAnchorable Version="V6" SearchSteps="Selector" FullSelectorArgument="&lt;html title='*RPA Challenge*' /&gt;&lt;webctrl tag='BUTTON' aaname='Start' /&gt;" WaitForReadyArgument="[NWaitForReady.Complete]" />
+                        </uix:NClick.Target>
+                    </uix:NClick>
+
+                    <ui:LogMessage DisplayName="Log: rodadas iniciadas" Level="Info">
+                        <ui:LogMessage.Message>
+                            <InArgument x:TypeArguments="x:Object">["Rodadas iniciadas (botao Start clicado)"]</InArgument>
+                        </ui:LogMessage.Message>
+                    </ui:LogMessage>
+
+                    <Assign DisplayName="RoundNumber = 0">
+                        <Assign.To>
+                            <OutArgument x:TypeArguments="x:Int32">[RoundNumber]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                            <InArgument x:TypeArguments="x:Int32">[0]</InArgument>
+                        </Assign.Value>
+                    </Assign>
+
+                    <ForEach x:TypeArguments="sd:DataRow" DisplayName="Para cada rodada do Excel" Values="[in_dtChallengeData.AsEnumerable()]">
+                        <ActivityAction x:TypeArguments="sd:DataRow">
+                            <ActivityAction.Argument>
+                                <DelegateInArgument x:TypeArguments="sd:DataRow" Name="CurrentRow" />
+                            </ActivityAction.Argument>
+                            <Sequence DisplayName="Rodada">
+                                <Assign DisplayName="RoundNumber += 1">
+                                    <Assign.To>
+                                        <OutArgument x:TypeArguments="x:Int32">[RoundNumber]</OutArgument>
+                                    </Assign.To>
+                                    <Assign.Value>
+                                        <InArgument x:TypeArguments="x:Int32">[RoundNumber + 1]</InArgument>
+                                    </Assign.Value>
+                                </Assign>
+
+                                <ui:LogMessage DisplayName="Log: preenchendo rodada" Level="Info">
+                                    <ui:LogMessage.Message>
+                                        <InArgument x:TypeArguments="x:Object">["Preenchendo rodada " &amp; RoundNumber.ToString() &amp; "/" &amp; in_dtChallengeData.Rows.Count.ToString()]</InArgument>
+                                    </ui:LogMessage.Message>
+                                </ui:LogMessage>
+
+                                <TryCatch DisplayName="Rodada com tratamento de erro">
+                                    <TryCatch.Try>
+                                        <Sequence DisplayName="Preencher os 7 campos, enviar, e validar se for a ultima">
+
+                                            <ForEach x:TypeArguments="scg:KeyValuePair(x:String, x:String)" DisplayName="Para cada campo do formulario" Values="[in_FieldMap]">
+                                                <ActivityAction x:TypeArguments="scg:KeyValuePair(x:String, x:String)">
+                                                    <ActivityAction.Argument>
+                                                        <DelegateInArgument x:TypeArguments="scg:KeyValuePair(x:String, x:String)" Name="FieldEntry" />
+                                                    </ActivityAction.Argument>
+                                                    <Sequence DisplayName="Preencher um campo">
+                                                        <Sequence.Variables>
+                                                            <Variable x:TypeArguments="x:String" Name="FieldValue" />
+                                                            <Variable x:TypeArguments="x:String" Name="FieldSelector" />
+                                                        </Sequence.Variables>
+
+                                                        <Assign DisplayName="FieldValue = valor da celula (tratando vazio)">
+                                                            <Assign.To>
+                                                                <OutArgument x:TypeArguments="x:String">[FieldValue]</OutArgument>
+                                                            </Assign.To>
+                                                            <Assign.Value>
+                                                                <InArgument x:TypeArguments="x:String">[If(IsDBNull(CurrentRow(FieldEntry.Key)), "", Convert.ToString(CurrentRow(FieldEntry.Key)).Trim())]</InArgument>
+                                                            </Assign.Value>
+                                                        </Assign>
+
+                                                        <Assign DisplayName="FieldSelector = seletor via ng-reflect-name">
+                                                            <Assign.To>
+                                                                <OutArgument x:TypeArguments="x:String">[FieldSelector]</OutArgument>
+                                                            </Assign.To>
+                                                            <Assign.Value>
+                                                                <InArgument x:TypeArguments="x:String">["&lt;html title='*RPA Challenge*' /&gt;&lt;webctrl tag='INPUT' ng-reflect-name='" &amp; FieldEntry.Value &amp; "' /&gt;"]</InArgument>
+                                                            </Assign.Value>
+                                                        </Assign>
+
+                                                        <uix:NTypeInto DisplayName="Type Into (campo dinamico)">
+                                                            <uix:NTypeInto.Target>
+                                                                <uix:TargetAnchorable Version="V6" SearchSteps="Selector" FullSelectorArgument="[FieldSelector]" />
+                                                            </uix:NTypeInto.Target>
+                                                            <uix:NTypeInto.Text>
+                                                                <InArgument x:TypeArguments="x:String">[FieldValue]</InArgument>
+                                                            </uix:NTypeInto.Text>
+                                                            <uix:NTypeInto.EmptyFieldMode>
+                                                                <InArgument x:TypeArguments="uix:NEmptyFieldMode">[NEmptyFieldMode.SingleLine]</InArgument>
+                                                            </uix:NTypeInto.EmptyFieldMode>
+                                                        </uix:NTypeInto>
+
+                                                    </Sequence>
+                                                </ActivityAction>
+                                            </ForEach>
+
+                                            <uix:NClick DisplayName="Click Submit">
+                                                <uix:NClick.Target>
+                                                    <uix:TargetAnchorable Version="V6" SearchSteps="Selector" FullSelectorArgument="&lt;html title='*RPA Challenge*' /&gt;&lt;webctrl tag='INPUT' type='submit' /&gt;" />
+                                                </uix:NClick.Target>
+                                            </uix:NClick>
+
+                                            <If Condition="[RoundNumber = in_dtChallengeData.Rows.Count]" DisplayName="Ultima rodada? Validar conclusao e capturar evidencia">
+                                                <If.Then>
+                                                    <Sequence DisplayName="Validar tela final e capturar evidencia">
+
+                                                        <Assign DisplayName="Garantir que a pasta de evidencias existe">
+                                                            <Assign.To>
+                                                                <OutArgument x:TypeArguments="x:Object">[Discard]</OutArgument>
+                                                            </Assign.To>
+                                                            <Assign.Value>
+                                                                <InArgument x:TypeArguments="x:Object">[Directory.CreateDirectory(Path.GetDirectoryName(in_EvidencePath))]</InArgument>
+                                                            </Assign.Value>
+                                                        </Assign>
+
+                                                        <uix:NCheckState DisplayName="Check App State (.congratulations)" Mode="WaitAppear" Timeout="30" Exists="[CongratsFound]">
+                                                            <uix:NCheckState.Target>
+                                                                <uix:TargetAnchorable Version="V6" SearchSteps="Selector" FullSelectorArgument="&lt;html title='*RPA Challenge*' /&gt;&lt;webctrl tag='DIV' class='*congratulations*' /&gt;" />
+                                                            </uix:NCheckState.Target>
+                                                        </uix:NCheckState>
+
+                                                        <If Condition="[Not CongratsFound]" DisplayName="Tela de conclusao apareceu?">
+                                                            <If.Then>
+                                                                <Throw DisplayName="Erro: tela final nao apareceu">
+                                                                    <Throw.Exception>
+                                                                        <InArgument x:TypeArguments="s:Exception">[New TimeoutException("A tela de conclusao (.congratulations) nao apareceu a tempo.")]</InArgument>
+                                                                    </Throw.Exception>
+                                                                </Throw>
+                                                            </If.Then>
+                                                        </If>
+
+                                                        <ui:LogMessage DisplayName="Log: desafio concluido" Level="Info">
+                                                            <ui:LogMessage.Message>
+                                                                <InArgument x:TypeArguments="x:Object">["Desafio concluido: tela de congratulations encontrada."]</InArgument>
+                                                            </ui:LogMessage.Message>
+                                                        </ui:LogMessage>
+
+                                                        <uix:NTakeScreenshot DisplayName="Take Screenshot (resultado final)" SaveScreenshotTo="File" FileNameMode="None">
+                                                            <uix:NTakeScreenshot.FileName>
+                                                                <InArgument x:TypeArguments="x:String">[in_EvidencePath]</InArgument>
+                                                            </uix:NTakeScreenshot.FileName>
+                                                        </uix:NTakeScreenshot>
+
+                                                        <ui:LogMessage DisplayName="Log: screenshot salvo" Level="Info">
+                                                            <ui:LogMessage.Message>
+                                                                <InArgument x:TypeArguments="x:Object">["Screenshot do resultado salvo em: " &amp; in_EvidencePath]</InArgument>
+                                                            </ui:LogMessage.Message>
+                                                        </ui:LogMessage>
+
+                                                    </Sequence>
+                                                </If.Then>
+                                            </If>
+
+                                        </Sequence>
+                                    </TryCatch.Try>
+                                    <TryCatch.Catches>
+                                        <Catch x:TypeArguments="s:Exception">
+                                            <ActivityAction x:TypeArguments="s:Exception">
+                                                <ActivityAction.Argument>
+                                                    <DelegateInArgument x:TypeArguments="s:Exception" Name="roundEx" />
+                                                </ActivityAction.Argument>
+                                                <Sequence>
+                                                    <ui:LogMessage DisplayName="Log: falha na rodada" Level="Error">
+                                                        <ui:LogMessage.Message>
+                                                            <InArgument x:TypeArguments="x:Object">["Falha na rodada " &amp; RoundNumber.ToString() &amp; "/" &amp; in_dtChallengeData.Rows.Count.ToString() &amp; ": " &amp; roundEx.Message]</InArgument>
+                                                        </ui:LogMessage.Message>
+                                                    </ui:LogMessage>
+                                                    <Rethrow DisplayName="Repropagar erro da rodada" />
+                                                </Sequence>
+                                            </ActivityAction>
+                                        </Catch>
+                                    </TryCatch.Catches>
+                                </TryCatch>
+                            </Sequence>
+                        </ActivityAction>
+                    </ForEach>
+
+                </Sequence>
+                        </ActivityAction>
+        </uix:NApplicationCard.Body>
+        </uix:NApplicationCard>
+    </Sequence>
+</Activity>

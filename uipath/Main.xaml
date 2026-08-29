@@ -1,0 +1,214 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" mva:VisualBasic.Settings="{x:Null}"
+xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common"
+xmlns:sn="clr-namespace:System.Net;assembly=System.Net.WebClient"
+xmlns:ui="http://schemas.uipath.com/workflow/activities"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <TextExpression.NamespacesForImplementation>
+        <sco:Collection x:TypeArguments="x:String">
+            <x:String>System.Activities</x:String>
+            <x:String>System.Activities.Statements</x:String>
+            <x:String>System.Activities.Expressions</x:String>
+            <x:String>System.Activities.Validation</x:String>
+            <x:String>System.Activities.XamlIntegration</x:String>
+            <x:String>Microsoft.VisualBasic</x:String>
+            <x:String>Microsoft.VisualBasic.Activities</x:String>
+            <x:String>System</x:String>
+            <x:String>System.Collections</x:String>
+            <x:String>System.Collections.Generic</x:String>
+            <x:String>System.Collections.ObjectModel</x:String>
+            <x:String>System.Data</x:String>
+            <x:String>System.Diagnostics</x:String>
+            <x:String>System.Drawing</x:String>
+            <x:String>System.IO</x:String>
+            <x:String>System.Linq</x:String>
+            <x:String>System.Net</x:String>
+            <x:String>System.Net.Mail</x:String>
+            <x:String>System.Xml</x:String>
+            <x:String>System.Xml.Linq</x:String>
+            <x:String>UiPath.Core</x:String>
+            <x:String>UiPath.Core.Activities</x:String>
+            <x:String>System.Windows.Markup</x:String>
+        </sco:Collection>
+    </TextExpression.NamespacesForImplementation>
+    <TextExpression.ReferencesForImplementation>
+        <sco:Collection x:TypeArguments="AssemblyReference">
+            <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+            <AssemblyReference>mscorlib</AssemblyReference>
+            <AssemblyReference>PresentationCore</AssemblyReference>
+            <AssemblyReference>PresentationFramework</AssemblyReference>
+            <AssemblyReference>System</AssemblyReference>
+            <AssemblyReference>System.Activities</AssemblyReference>
+            <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+            <AssemblyReference>System.Core</AssemblyReference>
+            <AssemblyReference>System.Data</AssemblyReference>
+            <AssemblyReference>System.Data.Common</AssemblyReference>
+            <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+            <AssemblyReference>System.Drawing</AssemblyReference>
+            <AssemblyReference>System.Drawing.Common</AssemblyReference>
+            <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+            <AssemblyReference>System.Linq</AssemblyReference>
+            <AssemblyReference>System.Net.Mail</AssemblyReference>
+            <AssemblyReference>System.Net.Primitives</AssemblyReference>
+            <AssemblyReference>System.Net.WebClient</AssemblyReference>
+            <AssemblyReference>System.ObjectModel</AssemblyReference>
+            <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+            <AssemblyReference>System.Xaml</AssemblyReference>
+            <AssemblyReference>System.Xml</AssemblyReference>
+            <AssemblyReference>System.Xml.Linq</AssemblyReference>
+            <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+            <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+            <AssemblyReference>WindowsBase</AssemblyReference>
+        </sco:Collection>
+    </TextExpression.ReferencesForImplementation>
+    <Sequence DisplayName="Main Sequence">
+        <Sequence.Variables>
+            <Variable x:TypeArguments="x:String" Name="ProjectRoot" />
+            <Variable x:TypeArguments="x:String" Name="ExcelPath" />
+            <Variable x:TypeArguments="x:String" Name="EvidencePath" />
+            <Variable x:TypeArguments="x:String" Name="ChallengeExcelUrl" Default="[&quot;https://rpachallenge.com/assets/downloadFiles/challenge.xlsx&quot;]" />
+            <Variable x:TypeArguments="sd:DataTable" Name="dt_ChallengeData" />
+            <Variable x:TypeArguments="scg:Dictionary(x:String, x:String)" Name="FieldMap" />
+            <Variable x:TypeArguments="x:Object" Name="Discard" />
+        </Sequence.Variables>
+
+        <Assign DisplayName="ProjectRoot = pasta do projeto">
+            <Assign.To>
+                <OutArgument x:TypeArguments="x:String">[ProjectRoot]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+                <InArgument x:TypeArguments="x:String">[Environment.CurrentDirectory]</InArgument>
+            </Assign.Value>
+        </Assign>
+        <Assign DisplayName="ExcelPath = uipath/data/challenge.xlsx">
+            <Assign.To>
+                <OutArgument x:TypeArguments="x:String">[ExcelPath]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+                <InArgument x:TypeArguments="x:String">[Path.Combine(ProjectRoot, "data", "challenge.xlsx")]</InArgument>
+            </Assign.Value>
+        </Assign>
+        <Assign DisplayName="EvidencePath = evidencias/resultado-uipath.png">
+            <Assign.To>
+                <OutArgument x:TypeArguments="x:String">[EvidencePath]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+                <InArgument x:TypeArguments="x:String">[Path.GetFullPath(Path.Combine(ProjectRoot, "..", "evidencias", "resultado-uipath.png"))]</InArgument>
+            </Assign.Value>
+        </Assign>
+        <Assign DisplayName="FieldMap = coluna do Excel -&gt; ng-reflect-name">
+            <Assign.To>
+                <OutArgument x:TypeArguments="scg:Dictionary(x:String, x:String)">[FieldMap]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+                <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)">[New Dictionary(Of String, String) From {{"First Name", "labelFirstName"}, {"Last Name", "labelLastName"}, {"Company Name", "labelCompanyName"}, {"Role in Company", "labelRole"}, {"Address", "labelAddress"}, {"Email", "labelEmail"}, {"Phone Number", "labelPhone"}}]</InArgument>
+            </Assign.Value>
+        </Assign>
+
+        <ui:LogMessage DisplayName="Log: inicio" Level="Info" Message="[&quot;=== Iniciando automacao do RPA Challenge (UiPath) ===&quot;]" />
+
+        <TryCatch DisplayName="Fluxo principal com tratamento de erro">
+            <TryCatch.Try>
+                <Sequence DisplayName="Fluxo principal">
+
+                    <!--
+                    O arquivo challenge.xlsx fica num link publico e fixo, o mesmo
+                    para qualquer sessao do desafio — por isso e baixado direto por
+                    HTTP (WebClient), sem precisar de navegador aberto pra isso.
+                    -->
+                    <Assign DisplayName="Garantir que a pasta de destino existe">
+                        <Assign.To>
+                            <OutArgument x:TypeArguments="x:Object">[Discard]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                            <InArgument x:TypeArguments="x:Object">[Directory.CreateDirectory(Path.GetDirectoryName(ExcelPath))]</InArgument>
+                        </Assign.Value>
+                    </Assign>
+
+                    <InvokeMethod DisplayName="Baixar challenge.xlsx (WebClient.DownloadFile)" MethodName="DownloadFile">
+                        <InvokeMethod.TargetObject>
+                            <InArgument x:TypeArguments="sn:WebClient">[New WebClient()]</InArgument>
+                        </InvokeMethod.TargetObject>
+                        <InvokeMethod.Parameters>
+                            <InArgument x:TypeArguments="x:String">[ChallengeExcelUrl]</InArgument>
+                            <InArgument x:TypeArguments="x:String">[ExcelPath]</InArgument>
+                        </InvokeMethod.Parameters>
+                    </InvokeMethod>
+
+                    <If Condition="[Not File.Exists(ExcelPath)]" DisplayName="Download concluiu?">
+                        <If.Then>
+                            <Throw DisplayName="Erro: falha no download">
+                                <Throw.Exception>
+                                    <InArgument x:TypeArguments="s:Exception">[New IOException("Download do Excel falhou: o arquivo nao foi criado em " &amp; ExcelPath)]</InArgument>
+                                </Throw.Exception>
+                            </Throw>
+                        </If.Then>
+                    </If>
+
+                    <ui:LogMessage DisplayName="Log: excel baixado" Level="Info">
+                        <ui:LogMessage.Message>
+                            <InArgument x:TypeArguments="x:Object">["Arquivo Excel baixado em: " &amp; ExcelPath]</InArgument>
+                        </ui:LogMessage.Message>
+                    </ui:LogMessage>
+
+                    <Assign DisplayName="dt_ChallengeData = DataTable vazia (preenchida por referencia)">
+                        <Assign.To>
+                            <OutArgument x:TypeArguments="sd:DataTable">[dt_ChallengeData]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                            <InArgument x:TypeArguments="sd:DataTable">[New DataTable()]</InArgument>
+                        </Assign.Value>
+                    </Assign>
+
+                    <ui:InvokeWorkflowFile DisplayName="Invoke ReadExcelData.xaml" WorkflowFileName="ReadExcelData.xaml">
+                        <ui:InvokeWorkflowFile.Arguments>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_ExcelPath">[ExcelPath]</InArgument>
+                            <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dtChallengeData">[dt_ChallengeData]</InArgument>
+                        </ui:InvokeWorkflowFile.Arguments>
+                    </ui:InvokeWorkflowFile>
+
+                    <ui:LogMessage DisplayName="Log: linhas validas" Level="Info" Message="[dt_ChallengeData.Rows.Count.ToString() &amp; &quot; linha(s) valida(s) encontradas no Excel&quot;]" />
+
+                    <!--
+                    Abre o navegador, clica Start e executa as 10 rodadas dentro de
+                    UM UNICO card continuo (ver RunChallenge.xaml para o porque
+                    disso ser importante — reabrir o card entre rodadas resetava o
+                    estado interno da SPA Angular sem nenhum aviso visivel).
+                    -->
+                    <ui:InvokeWorkflowFile DisplayName="Invoke RunChallenge.xaml" WorkflowFileName="RunChallenge.xaml">
+                        <ui:InvokeWorkflowFile.Arguments>
+                            <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dtChallengeData">[dt_ChallengeData]</InArgument>
+                            <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_FieldMap">[FieldMap]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_EvidencePath">[EvidencePath]</InArgument>
+                        </ui:InvokeWorkflowFile.Arguments>
+                    </ui:InvokeWorkflowFile>
+
+                    <ui:LogMessage DisplayName="Log: fim" Level="Info" Message="[&quot;=== Execucao finalizada com sucesso ===&quot;]" />
+                </Sequence>
+            </TryCatch.Try>
+            <TryCatch.Catches>
+                <Catch x:TypeArguments="s:Exception">
+                    <ActivityAction x:TypeArguments="s:Exception">
+                        <ActivityAction.Argument>
+                            <DelegateInArgument x:TypeArguments="s:Exception" Name="mainEx" />
+                        </ActivityAction.Argument>
+                        <Sequence DisplayName="Body">
+                            <ui:LogMessage DisplayName="Log: erro fatal" Level="Error" Message="[&quot;Erro fatal na automacao. Encerrando. Detalhe: &quot; &amp; mainEx.Message]" />
+                            <Rethrow DisplayName="Repropagar erro fatal" />
+                        </Sequence>
+                    </ActivityAction>
+                </Catch>
+            </TryCatch.Catches>
+            <TryCatch.Finally>
+                <Sequence DisplayName="Finalmente" />
+            </TryCatch.Finally>
+        </TryCatch>
+    </Sequence>
+</Activity>
