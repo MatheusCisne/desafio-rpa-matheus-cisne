@@ -219,6 +219,13 @@ exigiria uma sessão de rastreamento `sxstrace` com privilégio elevado), mas o 
 isolado e contornado com uma solução legítima do próprio Playwright, sem exigir nenhuma
 alteração de configuração de segurança do sistema.
 
+**Confirmação final:** testei o mesmo comando puro (`python main.py`, sem nenhuma variável de
+ambiente) em uma máquina **Linux**, onde o subsistema WinSxS/SideBySide nem existe — o Chromium
+baixado pelo Playwright abriu em modo visível e completou as 10 rodadas com 100% de sucesso na
+primeira tentativa. Isso confirma, com um teste real e não só com teoria, que a causa é mesmo
+específica dessa instalação do Windows, e não do Playwright, do projeto ou da estratégia de
+automação.
+
 **A correção usada:** defina `RPA_BROWSER_CHANNEL=msedge` para usar o Microsoft Edge em vez do
 Chromium isolado do Playwright:
 
