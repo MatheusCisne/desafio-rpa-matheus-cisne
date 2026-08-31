@@ -157,7 +157,7 @@ logs de execução por usuário/máquina.
   `SocketException (10054): conexão resetada pelo host remoto` (muito provavelmente relacionado
   à tela do computador bloquear/suspender a rede no meio do envio). A correção: publicar sempre
   com destino **Personalizado** (pasta local), evitando esse envio de rede por completo.
-- **Pacote publicado crescendo exponencialmente (chegou a ~57 GB numa das tentativas).**
+- **Pacote publicado crescendo exponencialmente (chegou a ~29 GB numa das tentativas).**
   Publicar dentro da própria pasta do projeto (`uipath/.output`) faz o publicador incluir o
   `.nupkg` da versão anterior dentro do novo pacote, que inclui o da versão anterior a essa, e
   assim por diante — crescimento exponencial a cada republicação. Tentei configurar
