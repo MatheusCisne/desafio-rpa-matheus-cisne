@@ -29,8 +29,8 @@ desafio-rpa-matheus-cisne/
     execução em Python (100%, 70/70 campos).
   - [evidencias/resultado-uipath.png](evidencias/resultado-uipath.png) — resultado final da
     execução em UiPath (100%, 70/70 campos).
-  - `evidencias/link-do-video.txt` — link do vídeo curto mostrando as duas soluções rodando
-    *(pendente)*.
+  - [evidencias/link-do-video.txt](evidencias/link-do-video.txt) — link do vídeo curto
+    mostrando as duas soluções rodando.
 - **Uso de IA**: [USO_DE_IA.md](USO_DE_IA.md).
 
 ## O problema
